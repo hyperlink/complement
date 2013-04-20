@@ -1,0 +1,117 @@
+<html>
+<head>
+	<title>Complement Test</title>
+	<style type="text/css">
+
+span {font-size: 20px;}
+body { margin: 0;}
+.colorBlock {width:150px; height: 150px; cursor: pointer; text-align: center; border: 4px solid #000; display: inline-block;}
+
+	</style>
+</head>
+<body>
+	<img src="images/tumblr_miy6shEr2m1s78sw5o1_1280.jpg">
+	<span style="position: absolute; top: 10px; left: 20px; font-weight: bold;"></span>
+
+<div style="float: right">
+
+<table>
+	<tr><th></th><th>Sampled</th><th>Sampled <br/>(skips blocks)</th><th>Hue Flipped</th></tr>
+	<tr>
+		<th></th>
+		<td><div id="averageColor" class="colorBlock"></div></td>
+		<td><div id="averageColor2" class="colorBlock"></div></td>
+		<td><div id="flippedColor" class="colorBlock"></div></td>
+	</tr>
+	<tr>
+		<th>Inversed</th>
+		<td><div id="inversedColor" class="colorBlock"></div></td>
+		<td><div id="inversedColor2" class="colorBlock"></div></td>
+		<td><div id="inversedFlipped" class="colorBlock"></div></td>
+	</tr>
+</table>
+
+</div>
+
+<button style="position: absolute; top: 10px; left: 50%">Next</button>
+
+<script src="components/jquery/jquery.js"></script>
+<script src="components/tinycolor/tinycolor.js"></script>
+<script type="text/javascript" src="complement.js"></script>
+<script type="text/javascript">
+
+var $span = $("span"), $img = $("img"), $button = $("button")
+
+var images = ['tumblr_miy6shEr2m1s78sw5o1_1280.jpg', 'tumblr_miy6rjGzn21s78sw5o1_1280.jpg', 'tumblr_miy6onuAvY1s78sw5o1_500.jpg', 'tumblr_miy6rehrQf1s78sw5o1_1280.jpg', 'tumblr_miy6r58QpN1s78sw5o1_1280.jpg']
+
+$button.click(function() {
+	$img.attr("src", 'images/'+images[next()])
+})
+
+updateColor()
+generateColorGrid()
+
+$img.load(generateColorGrid)
+
+$(".colorBlock").click(function() {
+	updateColor(getCssRgb(window[this.id]))
+})
+
+var current = 0
+function next() {
+	current = (current == images.length-1) ? 0 : current + 1
+	console.log(current)
+	return current
+}
+
+function generateColorGrid(){
+	var pos = $span.position()
+
+	var config = {
+		x: pos.top,
+		y: pos.left,
+		width: $span.width(),
+		height: $span.height(),
+		image: $img[0]
+	}
+	console.log(config)
+
+	averageColor = complement.sampleColor(config)
+	averageColor2 = complement.sampleColor2(config)
+	flippedColor = complement.getComplementFromRgb(averageColor2)
+	inversedColor = complement.inverse(averageColor)
+	inversedColor2 = complement.inverse(averageColor2)
+	inversedFlipped = complement.getComplementFromRgb(inverse(averageColor2))
+
+	$("#averageColor").css("background-color", getCssRgb(averageColor));
+	$("#averageColor2").css("background-color", getCssRgb(averageColor2));
+	$("#flippedColor").css("background-color", getCssRgb(flippedColor));
+	$("#inversedColor").css("background-color", getCssRgb(inversedColor));
+	$("#inversedColor2").css("background-color", getCssRgb(inversedColor2));
+	$("#inversedFlipped").css("background-color", getCssRgb(inversedFlipped));
+
+	updateColor(getCssRgb(inversedFlipped))
+}
+
+function updateColor(color) {
+	if (color) {
+		$span.css("color", color)
+	}
+	$span.text("Text Color: "+ $span.css("color"))
+}
+
+function inverse(rgb) {
+	return {
+		r: 255-rgb.r,
+		g: 255-rgb.g,
+		b: 255-rgb.b
+	}
+}
+
+function getCssRgb(rgb) {
+	return tinycolor(rgb).toString()
+}
+
+</script>
+</body>
+</html>
